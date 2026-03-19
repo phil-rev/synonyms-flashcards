@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYNONYMS Flashcard Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #f0f0f0;
+    }
+    
+    .container {
+      padding: 2rem 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .header p {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    body.dark-mode .header p {
+      color: #aaa;
+    }
+    
+    .stats {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .stat {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    
+    body.dark-mode .stat {
+      background: #2a2a2a;
+      border-color: #444;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    body.dark-mode .stat-label {
+      color: #aaa;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    
+    .card-container {
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      padding: 2rem;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    body.dark-mode .card {
+      background: #2a2a2a;
+      border-color: #444;
+    }
+    
+    .card:hover {
+      border-color: #999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    body.dark-mode .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    .card.revealed {
+      border-color: #666;
+    }
+    
+    .card-word {
+      font-size: 36px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 1rem;
+      word-break: break-word;
+    }
+    
+    .card-prompt {
+      font-size: 12px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    body.dark-mode .card-prompt {
+      color: #666;
+    }
+    
+    .card-answer {
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+    
+    .answer-distinctions {
+      background: #FFE8D6;
+      color: #A85A2E;
+    }
+    
+    .answer-systems {
+      background: #E8F4D0;
+      color: #4A7C2E;
+    }
+    
+    .answer-relationships {
+      background: #D6F0F8;
+      color: #1A6F8F;
+    }
+    
+    .answer-perspectives {
+      background: #FFE8C8;
+      color: #B8720F;
+    }
+    
+    body.dark-mode .answer-distinctions {
+      background: #5A3A1F;
+      color: #FFD4A8;
+    }
+    
+    body.dark-mode .answer-systems {
+      background: #3A4A1F;
+      color: #D4E0A8;
+    }
+    
+    body.dark-mode .answer-relationships {
+      background: #1F3A4A;
+      color: #A8D4E0;
+    }
+    
+    body.dark-mode .answer-perspectives {
+      background: #5A4A1F;
+      color: #FFD4A8;
+    }
+    
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    
+    .option {
+      padding: 0.875rem;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    body.dark-mode .option {
+      background: #2a2a2a;
+      border-color: #444;
+    }
+    
+    .option:hover {
+      border-color: #999;
+      background: #f9f9f9;
+    }
+    
+    body.dark-mode .option:hover {
+      background: #333;
+      border-color: #666;
+    }
+    
+    .option.selected {
+      border-color: #333;
+      background: #e8e8e8;
+      font-weight: 600;
+    }
+    
+    body.dark-mode .option.selected {
+      border-color: #fff;
+      background: #444;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+    
+    .button {
+      flex: 1;
+      padding: 0.875rem;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      transition: all 0.2s;
+    }
+    
+    body.dark-mode .button {
+      background: #2a2a2a;
+      border-color: #444;
+      color: #f0f0f0;
+    }
+    
+    .button:hover {
+      background: #f0f0f0;
+      border-color: #666;
+    }
+    
+    body.dark-mode .button:hover {
+      background: #333;
+      border-color: #666;
+    }
+    
+    .button:active {
+      transform: scale(0.98);
+    }
+    
+    .button-primary {
+      background: #333;
+      color: white;
+      border-color: #333;
+    }
+    
+    body.dark-mode .button-primary {
+      background: #f0f0f0;
+      color: #333;
+      border-color: #f0f0f0;
+    }
+    
+    .button-primary:hover {
+      background: #555;
+      border-color: #555;
+    }
+    
+    body.dark-mode .button-primary:hover {
+      background: #ddd;
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+    
+    body.dark-mode .theme-toggle {
+      background: #2a2a2a;
+      border-color: #444;
+    }
+    
+    .theme-toggle:hover {
+      border-color: #666;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .card-word {
+        font-size: 28px;
+      }
+      
+      .stats {
+        gap: 0.5rem;
+      }
+      
+      .stat {
+        padding: 0.75rem;
+        flex: 1;
+        min-width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+
+<div class="container">
+  <div class="header">
+    <h1>SYNONYMS Study Game</h1>
+    <p>Guess the category, then click the card to reveal</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Card</div>
+      <div class="stat-value" id="score">0/0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Correct</div>
+      <div class="stat-value" id="correct">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Accuracy</div>
+      <div class="stat-value" id="accuracy">—</div>
+    </div>
+  </div>
+
+  <div class="card-container">
+    <div class="card" id="card" onclick="revealAnswer()">
+      <div class="card-word" id="word">loading</div>
+      <div class="card-prompt">click to reveal answer</div>
+      <div class="card-answer" id="answer"></div>
+    </div>
+  </div>
+
+  <div class="options">
+    <div class="option" onclick="selectOption('distinctions')">Distinctions</div>
+    <div class="option" onclick="selectOption('systems')">Systems</div>
+    <div class="option" onclick="selectOption('relationships')">Relationships</div>
+    <div class="option" onclick="selectOption('perspectives')">Perspectives</div>
+  </div>
+
+  <div class="buttons">
+    <button class="button" onclick="skipCard()">Skip</button>
+    <button class="button button-primary" onclick="nextCard()">Next Card</button>
+  </div>
+</div>
+
+<script>
+const words = {
+  distinctions: [
+    'ascertain', 'liken to', 'label', 'element', 'pick out', 'us/them', 'dub',
+    'put side-by-side with', 'stereotype', 'exist', 'contradiction', 'resemble',
+    'differentiate', 'select', 'decide on', 'disagree', 'equate to', 'come about',
+    'entity', 'discern', 'determine', 'antithesis', 'juxtapose', 'describe', 'object',
+    'antonym', 'opposition', 'contrast', 'complement', 'know', 'nothing', 'different',
+    'remember', 'is', 'diagnose', 'transpire', 'agree', 'pick', 'take place',
+    'happen', 'specify', '"A"', 'not "A"', 'tool', 'existential', 'crop', 'arise',
+    'similarity', 'establish', 'be', 'identity', 'choose', 'stamp', 'title',
+    'ensue', 'nominate', 'not', 'whatsit', 'polarity', 'identification', 'recognize',
+    'what is', 'alive', 'commodity', 'make out', 'something', 'is not', 'incongruity',
+    'boundary', 'confirm', 'bracket', 'does not equal', 'put a name to',
+    'pinpoint', 'designate', 'typecast', 'synonym', 'article', 'to exist', 'mark',
+    'pigeonhole', 'whatchamacallit', 'compare', 'item', 'variation', 'identify',
+    'name', 'single out', 'occur', 'same', 'to be', 'materialize'
+  ],
+  systems: [
+    'collective', 'sort', 'label', 'tree diagramming', 'systematize', 'part/whole',
+    'entirety', 'classify', 'group', 'combine', 'piece', 'organization', 'brackets',
+    'type', 'brand', 'the pre-ex org', 'set', 'apart', 'cast', 'fix', 'manner',
+    'put straight', 'sort out', 'ilk', 'sum', 'coordinate', 'quality', 'collocate',
+    'grade', 'organize', 'vintage', 'organism', 'species', 'grain', 'mold',
+    'categorize', 'together', 'amalgamate', 'make', 'sets', 'pigeonhole', 'stripe',
+    'collection', 'taxonomy', 'family', 'total', 'typecast', 'genre', 'or',
+    'up', 'form', 'order', 'arrange', 'take apart', 'break down', 'bracket',
+    'class', 'variety', 'organ', 'generation', 'kind', 'assemble', 'codify',
+    'nature', 'catalog', 'systems thinking', 'clusters', 'hierarchies', 'model',
+    'deconstruct', 'marshal', 'stereotype'
+  ],
+  relationships: [
+    'cooperate', 'merge', 'integrate', 'colleague', 'leads', 'because', 'rank',
+    'relate', 'partner', 'stick', 'join', 'attach', 'cause', 'fasten', 'mingle',
+    'affect', 'interdisciplinary', 'connection', 'effect', 'correlate', 'adhere',
+    'link', 'feedback', 'intramural', 'link with', 'attachment', 'the prefix "co"',
+    'friending', 'connect', 'bind', 'affiliate', 'couple', 'network', 'coworker',
+    'bond', 'hitch', 'socialize', 'associate', 'align', 'coupling', 'nonlinear',
+    'contact', 'joint', 'association', 'ally', 'unite', 'couple with', 'and',
+    'causal', 'among', 'liking', 'to', 'associate with', 'phrases ending in "with" or "to"',
+    'collaborator', 'tie', 'link to', 'between', 'combine', 'interaction',
+    'subsequently', 'linear', 'link with', 'get on well with', 'interconnection',
+    'empathize with', 'mathematical operators such as + - / X',
+    'the prefixes "inter", "intra", "extra"'
+  ],
+  perspectives: [
+    'framework', 'mind set', 'look', 'once over', 'observation', 'aspect', 'it',
+    'X in terms of Y', 'negotiation', 'scale', 'way of looking at', 'survey',
+    'position', 'frame', 'opinion', 'reference point', 'feeling', 'compassion',
+    'approach', 'stance', 'context', 'worldview', 'frame of mind', 'he', 'study',
+    'them', 'reconciliation', 'dispute', 'my', 'stereotypes', 'attitude', 'empathy',
+    'pronouns', 'her', 'bias', 'angle', 'see', 'inspection', 'outlook', 'him',
+    'point of view', 'scan', 'us', 'interpretation', 'paradigm', 'dispute resolution',
+    'emotional intelligence', 'prosocial behavior'
+  ]
+};
+
+let currentWord = '';
+let currentCategory = '';
+let selectedOption = null;
+let cardRevealed = false;
+let totalCards = 0;
+let correctCards = 0;
+let cardIndex = 0;
+let cardOrder = [];
+
+function toggleTheme() {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const isDark = document.body.classList.contains('dark-mode');
+  document.querySelector('.theme-toggle').textContent = isDark ? '☀️' : '🌙';
+}
+
+function initializeTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark-mode');
+  }
+  updateThemeIcon();
+}
+
+function initGame() {
+  const allCards = [];
+  Object.entries(words).forEach(([category, wordList]) => {
+    wordList.forEach(word => {
+      allCards.push({ word, category });
+    });
+  });
+  
+  for (let i = allCards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allCards[i], allCards[j]] = [allCards[j], allCards[i]];
+  }
+  
+  cardOrder = allCards;
+  totalCards = allCards.length;
+  loadCard();
+}
+
+function loadCard() {
+  if (cardIndex < cardOrder.length) {
+    const card = cardOrder[cardIndex];
+    currentWord = card.word;
+    currentCategory = card.category;
+    cardRevealed = false;
+    selectedOption = null;
+    
+    document.getElementById('word').textContent = currentWord;
+    document.getElementById('answer').style.display = 'none';
+    document.getElementById('card').classList.remove('revealed');
+    document.getElementById('card').style.cursor = 'pointer';
+    
+    document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+    
+    updateStats();
+  } else {
+    document.getElementById('word').textContent = 'Game Complete!';
+    document.getElementById('card').style.cursor = 'default';
+    document.querySelector('.card-prompt').textContent = 'You finished all cards';
+  }
+}
+
+function revealAnswer() {
+  if (!cardRevealed && cardIndex < cardOrder.length) {
+    cardRevealed = true;
+    const answerEl = document.getElementById('answer');
+    const categoryLabel = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+    answerEl.textContent = categoryLabel;
+    answerEl.className = `card-answer answer-${currentCategory}`;
+    answerEl.style.display = 'block';
+    document.getElementById('card').classList.add('revealed');
+    document.getElementById('card').style.cursor = 'default';
+    
+    if (selectedOption === currentCategory) {
+      correctCards++;
+    }
+  }
+}
+
+function selectOption(option) {
+  if (!cardRevealed) {
+    selectedOption = option;
+    document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+    event.target.classList.add('selected');
+  }
+}
+
+function nextCard() {
+  cardIndex++;
+  loadCard();
+}
+
+function skipCard() {
+  nextCard();
+}
+
+function updateStats() {
+  document.getElementById('score').textContent = `${cardIndex}/${totalCards}`;
+  document.getElementById('correct').textContent = correctCards;
+  
+  if (cardIndex > 0) {
+    const accuracy = Math.round((correctCards / cardIndex) * 100);
+    document.getElementById('accuracy').textContent = `${accuracy}%`;
+  } else {
+    document.getElementById('accuracy').textContent = '—';
+  }
+}
+
+// Initialize
+initializeTheme();
+initGame();
+</script>
+
+</body>
+</html>
